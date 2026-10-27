@@ -68,7 +68,7 @@ td input{min-width:90px}
 <g fill="#c9a227" stroke="#8a6d10"><circle cx="90" cy="110" r="46"/><circle cx="170" cy="150" r="36"/><circle cx="700" cy="460" r="52"/><circle cx="620" cy="520" r="34"/><circle cx="330" cy="90" r="30"/></g>
 <g fill="#0b3d2e" stroke="none" font-size="22" font-family="Cairo,Tahoma" text-anchor="middle"><text x="90" y="118">د.ل</text><text x="170" y="158" font-size="17">د.ل</text><text x="700" y="468">د.ل</text><text x="620" y="526" font-size="16">د.ل</text><text x="330" y="97" font-size="14">%</text></g>
 <rect x="470" y="440" width="150" height="70" rx="8" fill="#e9dfb0" transform="rotate(-8 545 475)"/><rect x="40" y="250" width="130" height="60" rx="8" fill="#e9dfb0" transform="rotate(6 105 280)"/></g></svg></div>
-<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small>مراقبة التربية والتعليم - بلدية سلوق</small></div><button id="inst">تثبيت التطبيق</button></header>
+<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small>مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 4</small></div><button id="inst">تثبيت التطبيق</button></header>
 <nav id="nav"></nav>
 <main id="v"></main>
 <div id="toast"></div>
@@ -189,7 +189,7 @@ function sx(){const ws=XLSX.utils.json_to_sheet(PR.map(r=>({'الاسم':r.t.nam
 
 /* ===== تشغيل ===== */
 (async()=>{navigator.storage?.persist?.();await load();go('home');alertN();
-if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+if('serviceWorker' in navigator){const had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update());navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)location.reload()})}
 let dp;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#inst').style.display='block'});$('#inst').onclick=()=>dp?.prompt()})();
 </script>
 </body>
