@@ -1,0 +1,164 @@
+<!DOCTYPE html>
+<html lang="ar" dir="rtl">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<title>منظومة الرسوم الدراسية - مراقبة التربية والتعليم سلوق</title>
+<link rel="manifest" href="manifest.json">
+<meta name="theme-color" content="#0b3d2e">
+<link rel="icon" href="icon-192.png">
+<link rel="apple-touch-icon" href="icon-192.png">
+<style>
+@font-face{font-family:Cairo;font-weight:400;src:url(fonts/cairo-arabic-400-normal.woff2);unicode-range:U+0600-06FF,U+200C-200E,U+2010-2011,U+FB50-FDFF,U+FE70-FEFF}
+@font-face{font-family:Cairo;font-weight:700;src:url(fonts/cairo-arabic-700-normal.woff2);unicode-range:U+0600-06FF,U+200C-200E,U+2010-2011,U+FB50-FDFF,U+FE70-FEFF}
+@font-face{font-family:Cairo;font-weight:400;src:url(fonts/cairo-latin-400-normal.woff2);unicode-range:U+0000-00FF,U+2000-206F}
+@font-face{font-family:Cairo;font-weight:700;src:url(fonts/cairo-latin-700-normal.woff2);unicode-range:U+0000-00FF,U+2000-206F}
+:root{--g:#0b3d2e;--g2:#15694f;--gold:#c9a227;--gl:#f3e6b3;--bg:#f2f0e6;--ink:#14261f;--red:#b3261e;--mut:#5d6f66}
+*{box-sizing:border-box}
+body{margin:0;font-family:Cairo,Tahoma,sans-serif;background:var(--bg);color:var(--ink);padding-bottom:76px;min-height:100vh}
+.bg{position:fixed;inset:0;z-index:-1;opacity:.14;pointer-events:none}
+.bg svg{width:100%;height:100%}
+header{background:linear-gradient(120deg,var(--g),var(--g2));color:#fff;padding:12px 16px;display:flex;align-items:center;gap:12px;border-bottom:4px solid var(--gold)}
+header img{width:54px;height:54px;border-radius:50%;background:#fff;padding:2px}
+header h1{font-size:1.1rem;margin:0}header small{opacity:.85}
+#inst{margin-inline-start:auto;display:none;background:var(--gold);color:#222;border:0;border-radius:8px;padding:6px 10px;font:inherit;font-weight:700}
+nav{position:fixed;bottom:0;inset-inline:0;background:#fff;display:flex;box-shadow:0 -2px 12px #0003;z-index:5;padding-bottom:env(safe-area-inset-bottom)}
+nav a{flex:1;text-align:center;padding:8px 2px;font-size:.78rem;color:var(--mut);cursor:pointer;border-top:3px solid transparent}
+nav a i{display:block;font-style:normal;font-size:1.3rem}
+nav a.on{color:var(--g);border-color:var(--gold);font-weight:700;background:#f7f3e0}
+main{max-width:1050px;margin:auto;padding:14px}
+h2{color:var(--g);margin:6px 0 12px}
+.card{background:#fffffff2;border-radius:14px;padding:14px;margin-bottom:14px;box-shadow:0 2px 10px #0b3d2e1a;border:1px solid #e3dcc0}
+.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(150px,1fr));gap:10px}
+.st{background:linear-gradient(145deg,var(--g),var(--g2));color:#fff;border-radius:14px;padding:12px;border-bottom:4px solid var(--gold)}
+.st b{display:block;font-size:1.25rem;color:var(--gl)}
+.bar{height:12px;background:#ddd;border-radius:8px;overflow:hidden;margin:8px 0}.bar i{display:block;height:100%;background:linear-gradient(90deg,var(--gold),#e8c95a)}
+.tw{overflow-x:auto}table{border-collapse:collapse;width:100%;font-size:.9rem}
+th{background:var(--g);color:#fff;padding:8px;white-space:nowrap}td{padding:7px 8px;border-bottom:1px solid #e6e0c8}
+tr:nth-child(even) td{background:#faf7ea}
+input,select{font:inherit;padding:8px;border:1px solid #c9c2a0;border-radius:8px;width:100%;background:#fff}
+td input{min-width:90px}
+.row{display:flex;gap:8px;flex-wrap:wrap;margin:8px 0}.row>*{flex:1;min-width:140px}
+.b{background:var(--g);color:#fff;border:0;border-radius:10px;padding:9px 16px;font:inherit;font-weight:700;cursor:pointer}
+.b.go{background:var(--gold);color:#241c00}.b.rd{background:var(--red)}.b.sm{padding:4px 10px;font-size:.8rem}
+.chip{display:inline-block;background:var(--gl);border-radius:20px;padding:6px 12px;margin:3px;cursor:pointer}
+.al{display:flex;justify-content:space-between;gap:8px;padding:8px;border-right:4px solid var(--red);background:#fdeceb;border-radius:8px;margin:6px 0;flex-wrap:wrap}
+.ok{color:var(--g2);font-weight:700}.no{color:var(--red);font-weight:700}
+#toast{position:fixed;top:14px;left:50%;transform:translateX(-50%);background:var(--g);color:#fff;padding:10px 18px;border-radius:30px;z-index:20;display:none;border:2px solid var(--gold)}
+#pr{display:none}
+.sheet{background:#fff;padding:18px;border:2px solid var(--g);border-radius:6px}
+.rpt-h{display:flex;align-items:center;gap:14px;border-bottom:3px double var(--gold);padding-bottom:8px;margin-bottom:10px}
+.rpt-h img{width:82px;height:82px}.rpt-h h3{margin:0;color:var(--g)}
+.rc{border:2px solid var(--g);border-radius:8px;padding:10px 14px;height:132mm;position:relative;overflow:hidden;background:#fff}
+.rc .rh{display:flex;align-items:center;gap:10px;border-bottom:3px double var(--gold);padding-bottom:6px;color:var(--g)}
+.rc .rh img{width:70px;height:70px}.rc .no{margin-inline-start:auto;text-align:center;border:2px solid var(--g);border-radius:8px;padding:4px 10px;color:var(--g)}
+.rc table{margin-top:8px;font-size:1rem}.rc td{border:1px solid #cfc7a0;background:#fff!important}.rc td:first-child{background:var(--gl)!important;width:32%;font-weight:700}
+.rc .lab{position:absolute;left:10px;bottom:8px;font-size:.8rem;color:var(--mut)}
+.sig{display:flex;justify-content:space-around;margin-top:30px;text-align:center}.sig div{border-top:1px solid #333;padding-top:4px;width:30%}
+.cut{border-top:2px dashed #555;margin:6mm 0;text-align:center;color:#555;height:0;line-height:0}
+@media print{body>*:not(#pr){display:none!important}#pr{display:block!important}body{background:#fff;padding:0}@page{size:A4;margin:8mm}*{-webkit-print-color-adjust:exact;print-color-adjust:exact}.sheet{border:0}}
+@media(min-width:800px){nav{position:static;box-shadow:0 2px 6px #0002}main{padding-top:20px}body{padding-bottom:0}}
+</style>
+</head>
+<body>
+<div class="bg"><svg viewBox="0 0 800 600" preserveAspectRatio="xMidYMid slice" fill="none" stroke="#0b3d2e" stroke-width="3">
+<g><path d="M20 500 L120 430 L200 460 L300 350 L400 380 L520 250 L640 290 L780 120" stroke="#c9a227" stroke-width="6"/>
+<g fill="#15694f"><rect x="60" y="400" width="18" height="70"/><rect x="150" y="380" width="18" height="60"/><rect x="250" y="330" width="18" height="80"/><rect x="350" y="300" width="18" height="70"/><rect x="450" y="260" width="18" height="90"/><rect x="560" y="200" width="18" height="80"/><rect x="680" y="150" width="18" height="100"/></g>
+<g fill="#c9a227" stroke="#8a6d10"><circle cx="90" cy="110" r="46"/><circle cx="170" cy="150" r="36"/><circle cx="700" cy="460" r="52"/><circle cx="620" cy="520" r="34"/><circle cx="330" cy="90" r="30"/></g>
+<g fill="#0b3d2e" stroke="none" font-size="22" font-family="Cairo,Tahoma" text-anchor="middle"><text x="90" y="118">د.ل</text><text x="170" y="158" font-size="17">د.ل</text><text x="700" y="468">د.ل</text><text x="620" y="526" font-size="16">د.ل</text><text x="330" y="97" font-size="14">%</text></g>
+<rect x="470" y="440" width="150" height="70" rx="8" fill="#e9dfb0" transform="rotate(-8 545 475)"/><rect x="40" y="250" width="130" height="60" rx="8" fill="#e9dfb0" transform="rotate(6 105 280)"/></g></svg></div>
+<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small>مراقبة التربية والتعليم - بلدية سلوق</small></div><button id="inst">تثبيت التطبيق</button></header>
+<nav id="nav"></nav>
+<main id="v"></main>
+<div id="toast"></div>
+<div id="pr"></div>
+<input type="file" id="fx" accept=".xlsx,.xls" hidden>
+<input type="file" id="fb" accept=".json" hidden>
+<script src="xlsx.min.js"></script>
+<script>
+const GR=["الأول ابتدائي","الثاني ابتدائي","الثالث ابتدائي","الرابع","الخامس","السادس","السابع","الثامن","التاسع","الأول ثانوي","الثاني ثانوي أدبي","الثاني ثانوي علمي","الثالث ثانوي أدبي","الثالث ثانوي علمي"];
+const $=s=>document.querySelector(s);
+const f=n=>(+n||0).toLocaleString('en-US',{maximumFractionDigits:2});
+const D=n=>f(n)+' د.ل';
+const today=()=>new Date().toISOString().slice(0,10);
+const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
+/* ===== IndexedDB ===== */
+const DB=new Promise((ok,no)=>{const r=indexedDB.open('salouq-fees',1);r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('kv');d.createObjectStore('students',{keyPath:'id',autoIncrement:true});d.createObjectStore('payments',{keyPath:'id',autoIncrement:true})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+async function tx(s,m,fn){const d=await DB;return new Promise((ok,no)=>{const t=d.transaction(s,m),o=t.objectStore(s);const q=fn(o);t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>no(t.error)})}
+const all=s=>tx(s,'readonly',o=>o.getAll());
+const put=(s,v,k)=>tx(s,'readwrite',o=>o.put(v,k));
+const del=(s,k)=>tx(s,'readwrite',o=>o.delete(k));
+async function bulk(s,arr){const d=await DB;return new Promise((ok,no)=>{const t=d.transaction(s,'readwrite'),o=t.objectStore(s);arr.forEach(v=>o.put(v));t.oncomplete=ok;t.onerror=()=>no(t.error)})}
+const clr=s=>tx(s,'readwrite',o=>o.clear());
+let S={cfg:{},st:[],pay:[]};
+async function load(){S.cfg=(await tx('kv','readonly',o=>o.get('cfg')))||{};S.st=await all('students');S.pay=await all('payments')}
+/* ===== حسابات ===== */
+const byId=id=>S.st.find(s=>s.id==id);
+const tot=s=>s.fee!=null&&s.fee!==''?+s.fee:+(S.cfg[s.grade]?.fee||0);
+const paid=s=>S.pay.filter(p=>p.sid==s.id).reduce((a,p)=>a+p.amt,0);
+const rem=s=>tot(s)-paid(s);
+function expected(s){const c=S.cfg[s.grade]||{};const n=+c.n||0;if(!n||!c.start)return 0;const a=new Date(c.start),b=new Date();let m=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth();if(b.getDate()<a.getDate())m--;const k=Math.max(0,Math.min(n,m+1));return tot(s)*k/n}
+const late=s=>Math.max(0,expected(s)-paid(s));
+/* ===== واجهة ===== */
+let view='home';
+const TABS=[['home','🏠','الرئيسية'],['grades','🏫','الصفوف'],['students','👨‍🎓','الطلاب'],['fees','💰','الرسوم'],['reports','📊','التقارير']];
+function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2600)}
+function go(v){view=v;$('#nav').innerHTML=TABS.map(t=>`<a class="${t[0]==v?'on':''}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}</a>`).join('');$('#v').innerHTML=({home:vHome,grades:vGrades,students:vStudents,fees:vFees,reports:vReports})[v]();if(v=='fees')fr();if(v=='students')sl();if(v=='reports')rp();scrollTo(0,0)}
+/* --- الرئيسية --- */
+function vHome(){const T=S.st.reduce((a,s)=>a+tot(s),0),P=S.st.reduce((a,s)=>a+paid(s),0),pc=T?Math.round(P/T*100):0;
+const L=S.st.map(s=>({s,l:late(s)})).filter(x=>x.l>0.5).sort((a,b)=>b.l-a.l);
+return `<h2>لوحة المتابعة</h2><div class="grid"><div class="st">عدد الطلاب<b>${f(S.st.length)}</b></div><div class="st">إجمالي الرسوم<b>${D(T)}</b></div><div class="st">المحصّل<b>${D(P)}</b></div><div class="st">المتبقي<b>${D(T-P)}</b></div></div>
+<div class="card" style="margin-top:14px">نسبة التحصيل ${pc}%<div class="bar"><i style="width:${pc}%"></i></div></div>
+<div class="card"><h3>تنبيهات الأقساط المتأخرة (${L.length})</h3>${L.slice(0,15).map(x=>`<div class="al"><span><b>${esc(x.s.name)}</b> - ${x.s.grade}</span><span>متأخر: <b class="no">${D(x.l)}</b> ${x.s.phone?`<a href="tel:${esc(x.s.phone)}">📞</a>`:''} <button class="b sm" onclick="sel=${x.s.id};go('fees')">سداد</button></span></div>`).join('')||'<p class="ok">لا توجد أقساط متأخرة. حدّد عدد الأقساط وتاريخ أول قسط في تبويب الصفوف لتفعيل التنبيهات.</p>'}</div>
+<div class="card"><h3>الأدوات</h3><div class="row"><button class="b go" onclick="notif()">🔔 تفعيل إشعارات الجهاز</button><button class="b" onclick="bk()">⬇ نسخة احتياطية</button><button class="b" onclick="$('#fb').click()">⬆ استعادة نسخة</button></div><small>البيانات محفوظة في ذاكرة المتصفح (IndexedDB) على هذا الجهاز. خذ نسخة احتياطية دورياً.</small></div>`}
+async function notif(){if(!('Notification' in window))return toast('الجهاز لا يدعم الإشعارات');const r=await Notification.requestPermission();if(r=='granted'){toast('تم تفعيل الإشعارات');alertN()}}
+async function alertN(){if(!('Notification' in window)||Notification.permission!='granted')return;const n=S.st.filter(s=>late(s)>0.5).length;if(!n)return;const r=await navigator.serviceWorker?.getRegistration();r?.showNotification('تنبيه أقساط',{body:`يوجد ${n} طالب متأخر عن سداد القسط`,icon:'icon-192.png',dir:'rtl',lang:'ar'})}
+function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
+const bk=()=>dl(new Blob([JSON.stringify(S)],{type:'application/json'}),`نسخة_احتياطية_${today()}.json`);
+$('#fb').onchange=async e=>{const x=e.target.files[0];if(!x||!confirm('سيتم استبدال البيانات الحالية. متابعة؟'))return;try{const d=JSON.parse(await x.text());await clr('students');await clr('payments');await put('kv',d.cfg||{},'cfg');await bulk('students',d.st||[]);await bulk('payments',d.pay||[]);await load();go('home');toast('تمت الاستعادة')}catch{toast('ملف غير صالح')}e.target.value=''};
+/* --- الصفوف --- */
+function vGrades(){return `<h2>الصفوف وقيمة الرسوم</h2><div class="card"><div class="tw"><table><tr><th>الصف<th>القيمة (د.ل)<th>عدد الأقساط<th>تاريخ أول قسط<th>الطلاب</tr>${GR.map((g,i)=>{const c=S.cfg[g]||{};return `<tr><td><b>${g}</b><td><input type="number" min="0" data-g="${i}" data-k="fee" value="${c.fee||''}"><td><input type="number" min="1" data-g="${i}" data-k="n" value="${c.n||''}" placeholder="1"><td><input type="date" data-g="${i}" data-k="start" value="${c.start||''}"><td>${S.st.filter(s=>s.grade==g).length}</tr>`}).join('')}</table></div><div class="row"><button class="b" onclick="saveG()">💾 حفظ القيم</button></div></div>`}
+async function saveG(){const c={};document.querySelectorAll('[data-g]').forEach(i=>{const g=GR[i.dataset.g];(c[g]=c[g]||{})[i.dataset.k]=i.value});S.cfg=c;await put('kv',c,'cfg');toast('تم الحفظ');go('grades')}
+/* --- الطلاب --- */
+const gOpts=(all)=>(all?'<option value="">كل الصفوف</option>':'')+GR.map(g=>`<option>${g}</option>`).join('');
+function vStudents(){return `<h2>إضافة الطلاب</h2><div class="card"><h3>إضافة طالب</h3><div class="row"><input id="sn" placeholder="اسم الطالب"><input id="sp" placeholder="هاتف ولي الأمر"><select id="sg">${gOpts()}</select><button class="b go" onclick="addS()">إضافة</button></div></div>
+<div class="card"><h3>الاستيراد من إكسل</h3><div class="row"><select id="xg">${gOpts(1)}</select><button class="b" onclick="tpl()">⬇ تحميل القالب</button><button class="b go" onclick="$('#fx').click()">⬆ رفع ملف الطلاب</button></div><small>اختر صفاً محدداً لرفع الملف إليه، أو "كل الصفوف" ليتم توزيع الأوراق حسب اسم الصف تلقائياً.</small></div>
+<div class="card"><div class="row"><select id="fg" onchange="sl()">${gOpts(1)}</select><input id="fq" placeholder="بحث بالاسم" oninput="sl()"></div><div class="tw" id="sl"></div></div>`}
+function sl(){const g=$('#fg').value,q=$('#fq').value.trim();const L=S.st.filter(s=>(!g||s.grade==g)&&(!q||s.name.includes(q)));$('#sl').innerHTML=`<table><tr><th>#<th>الاسم<th>الصف<th>الإجمالي<th>المدفوع<th>المتبقي<th></tr>${L.slice(0,200).map((s,i)=>`<tr><td>${i+1}<td>${esc(s.name)}<td>${s.grade}<td>${f(tot(s))}<td>${f(paid(s))}<td class="${rem(s)>0?'no':'ok'}">${f(rem(s))}<td style="white-space:nowrap"><button class="b sm go" onclick="sel=${s.id};go('fees')">دفع</button> <button class="b sm rd" onclick="delS(${s.id})">حذف</button></tr>`).join('')||'<tr><td colspan="7">لا يوجد طلاب</tr>'}</table>${L.length>200?`<small>يُعرض أول 200 من ${L.length}، استخدم البحث.</small>`:''}`}
+async function addS(){const n=$('#sn').value.trim();if(!n)return toast('اكتب اسم الطالب');const s={name:n,phone:$('#sp').value.trim(),grade:$('#sg').value,fee:null};s.id=await put('students',s);S.st.push(s);$('#sn').value='';$('#sp').value='';toast('تمت الإضافة');sl()}
+async function delS(id){if(!confirm('حذف الطالب وكل مدفوعاته؟'))return;await del('students',id);for(const p of S.pay.filter(p=>p.sid==id))await del('payments',p.id);S.st=S.st.filter(s=>s.id!=id);S.pay=S.pay.filter(p=>p.sid!=id);sl()}
+function tpl(){const g=$('#xg').value,wb=XLSX.utils.book_new();(g?[g]:GR).forEach(n=>{const ws=XLSX.utils.aoa_to_sheet([['الاسم','الهاتف','الرسوم (اختياري)']]);ws['!cols']=[{wch:32},{wch:18},{wch:18}];wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,n)});XLSX.writeFile(wb,g?`قالب_${g}.xlsx`:'قالب_جميع_الصفوف.xlsx')}
+$('#fx').onchange=async e=>{const file=e.target.files[0];if(!file)return;const g=$('#xg')?.value||'';try{const wb=XLSX.read(await file.arrayBuffer());const arr=[];for(const sn of wb.SheetNames){const gr=g||GR.find(x=>x==sn.trim());if(!gr)continue;for(const r of XLSX.utils.sheet_to_json(wb.Sheets[sn],{defval:''})){const nm=String(r['الاسم']||'').trim();if(!nm)continue;const fe=r['الرسوم (اختياري)'];arr.push({name:nm,phone:String(r['الهاتف']||'').trim(),grade:gr,fee:fe===''?null:+fe})}if(g)break}
+if(!arr.length)toast('لم يتم العثور على طلاب. تأكد من أسماء الأوراق والأعمدة');else{await bulk('students',arr);await load();toast(`تم استيراد ${arr.length} طالب`);go('students')}}catch{toast('تعذّرت قراءة الملف')}e.target.value=''};
+/* --- الرسوم --- */
+let sel=null;
+function vFees(){return `<h2>الرسوم الدراسية</h2><div class="card"><input id="q" placeholder="🔍 ابحث عن الطالب بالاسم..." oninput="sel=null;fr()"></div><div id="fres"></div>`}
+function fr(){const q=($('#q')?.value||'').trim(),e=$('#fres');if(sel){const s=byId(sel);if(!s){sel=null;return fr()}const r=rem(s);const ps=S.pay.filter(p=>p.sid==s.id).sort((a,b)=>b.id-a.id);
+e.innerHTML=`<div class="card"><h3>${esc(s.name)} <small>- ${s.grade}</small></h3><div class="grid"><div class="st">الإجمالي<b>${D(tot(s))}</b></div><div class="st">المدفوع<b>${D(paid(s))}</b></div><div class="st">المتبقي<b>${D(r)}</b></div></div>
+<div class="row"><input id="pa" type="number" min="0" step="any" placeholder="القيمة المدفوعة (د.ل)"><input id="pd" type="date" value="${today()}"><input id="pn" placeholder="ملاحظة (اختياري)"></div>
+<div class="row"><button class="b go" onclick="pay()">💾 حفظ وطباعة الإيصال</button><button class="b rd" onclick="refund()">↩ ترجيع قيمة</button></div></div>
+<div class="card"><h3>سجل العمليات</h3><div class="tw"><table><tr><th>رقم<th>التاريخ<th>النوع<th>القيمة<th>المتبقي<th></tr>${ps.map(p=>`<tr><td>${p.id}<td>${p.date}<td>${p.amt<0?'<span class="no">ترجيع</span>':'دفع'}<td>${f(Math.abs(p.amt))}<td>${f(p.rem)}<td><button class="b sm" onclick="prt(${p.id})">🖨</button></tr>`).join('')||'<tr><td colspan="6">لا توجد عمليات بعد</tr>'}</table></div></div>`;return}
+const L=q?S.st.filter(s=>s.name.includes(q)).slice(0,12):[];e.innerHTML=q?`<div class="card">${L.map(s=>`<span class="chip" onclick="sel=${s.id};fr()">${esc(s.name)} <small>(${s.grade})</small></span>`).join('')||'لا توجد نتائج'}</div>`:'<div class="card">اكتب اسم الطالب للبدء.</div>'}
+async function pay(){const s=byId(sel),a=+$('#pa').value;if(!(a>0))return toast('أدخل قيمة صحيحة');if(a>rem(s)&&!confirm('القيمة أكبر من المتبقي. متابعة؟'))return;await rec(s,a)}
+async function refund(){const s=byId(sel),a=+prompt('قيمة الترجيع (د.ل):',paid(s));if(!(a>0))return;if(a>paid(s))return toast('القيمة أكبر من المدفوع');await rec(s,-a)}
+async function rec(s,a){const p={sid:s.id,amt:a,date:$('#pd').value||today(),note:$('#pn').value.trim(),rem:rem(s)-a};p.id=await put('payments',p);S.pay.push(p);fr();toast(a<0?'تم الترجيع':'تم حفظ الدفعة');prt(p.id)}
+const rc=(p,s,lab)=>`<div class="rc"><div class="rh"><img src="logo.jpg"><div><b style="font-size:1.2rem">وزارة التربية والتعليم</b><br>مراقبة التربية والتعليم - بلدية سلوق</div><div class="no"><b>${p.amt<0?'إيصال ترجيع':'إيصال دفع رسوم'}</b><br>رقم: ${p.id}</div></div>
+<table><tr><td>التاريخ<td>${p.date}<tr><td>اسم الطالب<td>${esc(s.name)}<tr><td>الصف<td>${s.grade}<tr><td>${p.amt<0?'القيمة المرجعة':'القيمة المدفوعة'}<td><b style="font-size:1.2rem">${D(Math.abs(p.amt))}</b><tr><td>إجمالي الرسوم<td>${D(tot(s))}<tr><td>المتبقي<td><b>${D(p.rem)}</b>${p.note?`<tr><td>ملاحظة<td>${esc(p.note)}`:''}</table>
+<div class="sig"><div>توقيع ولي الأمر</div><div>توقيع المحاسب</div><div>الختم</div></div><span class="lab">${lab}</span></div>`;
+function prt(id){const p=S.pay.find(x=>x.id==id),s=byId(p.sid);$('#pr').innerHTML=rc(p,s,'نسخة ولي الأمر')+'<div class="cut">✂ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ</div>'+rc(p,s,'نسخة المدرسة');setTimeout(()=>print(),150)}
+/* --- التقارير --- */
+function vReports(){return `<h2>التقارير</h2><div class="card"><div class="row"><select id="rg" onchange="rp()">${gOpts(1)}</select><select id="rs" onchange="rp()"><option value="">كل الطلاب</option><option value="d">عليهم متبقي</option><option value="c">مسدّدون بالكامل</option></select><button class="b go" onclick="$('#pr').innerHTML=RH;print()">🖨 طباعة</button><button class="b" onclick="rx()">📗 تصدير Excel</button></div></div><div id="rp"></div>`}
+let RH='',RR=[];
+function rp(){const g=$('#rg').value,m=$('#rs').value;const L=S.st.filter(s=>(!g||s.grade==g)&&(m!='d'||rem(s)>0.5)&&(m!='c'||rem(s)<=0.5));RR=L;const T=L.reduce((a,s)=>a+tot(s),0),P=L.reduce((a,s)=>a+paid(s),0);
+const by=g?'':`<h4 style="color:var(--g)">ملخص الصفوف</h4><table><tr><th>الصف<th>الطلاب<th>الإجمالي<th>المحصّل<th>المتبقي</tr>${GR.map(x=>{const q=L.filter(s=>s.grade==x);if(!q.length)return'';const a=q.reduce((c,s)=>c+tot(s),0),b=q.reduce((c,s)=>c+paid(s),0);return `<tr><td>${x}<td>${q.length}<td>${f(a)}<td>${f(b)}<td>${f(a-b)}</tr>`}).join('')}</table><br>`;
+RH=`<div class="sheet"><div class="rpt-h"><img src="logo.jpg"><div><h3>وزارة التربية والتعليم</h3><b>مراقبة التربية والتعليم - بلدية سلوق</b><br>كشف الرسوم الدراسية: ${g||'المدرسة ككل'} &nbsp;|&nbsp; بتاريخ ${today()}</div></div>
+<div class="grid" style="margin-bottom:10px"><div class="st">الطلاب<b>${L.length}</b></div><div class="st">الإجمالي<b>${D(T)}</b></div><div class="st">المحصّل<b>${D(P)}</b></div><div class="st">المتبقي<b>${D(T-P)}</b></div></div>${by}
+<div class="tw"><table><tr><th>#<th>الاسم<th>الصف<th>الإجمالي<th>المدفوع<th>المتبقي<th>الحالة</tr>${L.map((s,i)=>`<tr><td>${i+1}<td>${esc(s.name)}<td>${s.grade}<td>${f(tot(s))}<td>${f(paid(s))}<td>${f(rem(s))}<td class="${rem(s)>0.5?'no':'ok'}">${rem(s)>0.5?'عليه متبقي':'مسدّد'}</tr>`).join('')}</table></div><p style="text-align:center;color:var(--mut)">منظومة الرسوم الدراسية - مراقبة التربية والتعليم بلدية سلوق</p></div>`;$('#rp').innerHTML=RH}
+function rx(){const ws=XLSX.utils.json_to_sheet(RR.map(s=>({'الاسم':s.name,'الصف':s.grade,'الإجمالي':tot(s),'المدفوع':paid(s),'المتبقي':rem(s)})));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'كشف');XLSX.writeFile(wb,`كشف_${today()}.xlsx`)}
+/* ===== تشغيل ===== */
+(async()=>{navigator.storage?.persist?.();await load();go('home');alertN();
+if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
+let dp;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#inst').style.display='block'});$('#inst').onclick=()=>dp?.prompt()})();
+</script>
+</body>
+</html>
