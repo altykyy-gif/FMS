@@ -23,7 +23,7 @@ header img{width:54px;height:54px;border-radius:50%;background:#fff;padding:2px}
 header h1{font-size:1.1rem;margin:0}header small{opacity:.85}
 #inst{margin-inline-start:auto;display:none;background:var(--gold);color:#222;border:0;border-radius:8px;padding:6px 10px;font:inherit;font-weight:700}
 nav{position:fixed;bottom:0;inset-inline:0;background:#fff;display:flex;box-shadow:0 -2px 12px #0003;z-index:5;padding-bottom:env(safe-area-inset-bottom)}
-nav a{flex:1;text-align:center;padding:8px 2px;font-size:.78rem;color:var(--mut);cursor:pointer;border-top:3px solid transparent}
+nav a{flex:1;text-align:center;padding:8px 1px;font-size:.7rem;color:var(--mut);cursor:pointer;border-top:3px solid transparent}
 nav a i{display:block;font-style:normal;font-size:1.3rem}
 nav a.on{color:var(--g);border-color:var(--gold);font-weight:700;background:#f7f3e0}
 main{max-width:1050px;margin:auto;padding:14px}
@@ -83,15 +83,15 @@ const D=n=>f(n)+' د.ل';
 const today=()=>new Date().toISOString().slice(0,10);
 const esc=s=>String(s??'').replace(/[&<>"]/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;','"':'&quot;'}[c]));
 /* ===== IndexedDB ===== */
-const DB=new Promise((ok,no)=>{const r=indexedDB.open('salouq-fees',1);r.onupgradeneeded=()=>{const d=r.result;d.createObjectStore('kv');d.createObjectStore('students',{keyPath:'id',autoIncrement:true});d.createObjectStore('payments',{keyPath:'id',autoIncrement:true})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
+const DB=new Promise((ok,no)=>{const r=indexedDB.open('salouq-fees',2);r.onupgradeneeded=()=>{const d=r.result,h=n=>d.objectStoreNames.contains(n);if(!h('kv'))d.createObjectStore('kv');['students','payments','teachers'].forEach(n=>{if(!h(n))d.createObjectStore(n,{keyPath:'id',autoIncrement:true})});if(!h('tlog'))d.createObjectStore('tlog',{keyPath:'id'})};r.onsuccess=()=>ok(r.result);r.onerror=()=>no(r.error)});
 async function tx(s,m,fn){const d=await DB;return new Promise((ok,no)=>{const t=d.transaction(s,m),o=t.objectStore(s);const q=fn(o);t.oncomplete=()=>ok(q&&q.result);t.onerror=()=>no(t.error)})}
 const all=s=>tx(s,'readonly',o=>o.getAll());
 const put=(s,v,k)=>tx(s,'readwrite',o=>o.put(v,k));
 const del=(s,k)=>tx(s,'readwrite',o=>o.delete(k));
 async function bulk(s,arr){const d=await DB;return new Promise((ok,no)=>{const t=d.transaction(s,'readwrite'),o=t.objectStore(s);arr.forEach(v=>o.put(v));t.oncomplete=ok;t.onerror=()=>no(t.error)})}
 const clr=s=>tx(s,'readwrite',o=>o.clear());
-let S={cfg:{},st:[],pay:[]};
-async function load(){S.cfg=(await tx('kv','readonly',o=>o.get('cfg')))||{};S.st=await all('students');S.pay=await all('payments')}
+let S={cfg:{},st:[],pay:[],tc:[],tl:[]};
+async function load(){S.cfg=(await tx('kv','readonly',o=>o.get('cfg')))||{};S.st=await all('students');S.pay=await all('payments');S.tc=await all('teachers');S.tl=await all('tlog')}
 /* ===== حسابات ===== */
 const byId=id=>S.st.find(s=>s.id==id);
 const tot=s=>s.fee!=null&&s.fee!==''?+s.fee:+(S.cfg[s.grade]?.fee||0);
@@ -101,9 +101,9 @@ function expected(s){const c=S.cfg[s.grade]||{};const n=+c.n||0;if(!n||!c.start)
 const late=s=>Math.max(0,expected(s)-paid(s));
 /* ===== واجهة ===== */
 let view='home';
-const TABS=[['home','🏠','الرئيسية'],['grades','🏫','الصفوف'],['students','👨‍🎓','الطلاب'],['fees','💰','الرسوم'],['reports','📊','التقارير']];
+const TABS=[['home','🏠','الرئيسية'],['grades','🏫','الصفوف'],['students','👨‍🎓','الطلاب'],['fees','💰','الرسوم'],['staff','👩‍🏫','المعلمون'],['reports','📊','التقارير']];
 function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2600)}
-function go(v){view=v;$('#nav').innerHTML=TABS.map(t=>`<a class="${t[0]==v?'on':''}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}</a>`).join('');$('#v').innerHTML=({home:vHome,grades:vGrades,students:vStudents,fees:vFees,reports:vReports})[v]();if(v=='fees')fr();if(v=='students')sl();if(v=='reports')rp();scrollTo(0,0)}
+function go(v){view=v;$('#nav').innerHTML=TABS.map(t=>`<a class="${t[0]==v?'on':''}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}</a>`).join('');$('#v').innerHTML=({home:vHome,grades:vGrades,students:vStudents,fees:vFees,staff:vStaff,reports:vReports})[v]();if(v=='fees')fr();if(v=='students')sl();if(v=='reports')rp();if(v=='staff')sfr();scrollTo(0,0)}
 /* --- الرئيسية --- */
 function vHome(){const T=S.st.reduce((a,s)=>a+tot(s),0),P=S.st.reduce((a,s)=>a+paid(s),0),pc=T?Math.round(P/T*100):0;
 const L=S.st.map(s=>({s,l:late(s)})).filter(x=>x.l>0.5).sort((a,b)=>b.l-a.l);
@@ -115,7 +115,7 @@ async function notif(){if(!('Notification' in window))return toast('الجهاز
 async function alertN(){if(!('Notification' in window)||Notification.permission!='granted')return;const n=S.st.filter(s=>late(s)>0.5).length;if(!n)return;const r=await navigator.serviceWorker?.getRegistration();r?.showNotification('تنبيه أقساط',{body:`يوجد ${n} طالب متأخر عن سداد القسط`,icon:'icon-192.png',dir:'rtl',lang:'ar'})}
 function dl(blob,name){const a=document.createElement('a');a.href=URL.createObjectURL(blob);a.download=name;a.click()}
 const bk=()=>dl(new Blob([JSON.stringify(S)],{type:'application/json'}),`نسخة_احتياطية_${today()}.json`);
-$('#fb').onchange=async e=>{const x=e.target.files[0];if(!x||!confirm('سيتم استبدال البيانات الحالية. متابعة؟'))return;try{const d=JSON.parse(await x.text());await clr('students');await clr('payments');await put('kv',d.cfg||{},'cfg');await bulk('students',d.st||[]);await bulk('payments',d.pay||[]);await load();go('home');toast('تمت الاستعادة')}catch{toast('ملف غير صالح')}e.target.value=''};
+$('#fb').onchange=async e=>{const x=e.target.files[0];if(!x||!confirm('سيتم استبدال البيانات الحالية. متابعة؟'))return;try{const d=JSON.parse(await x.text());await clr('students');await clr('payments');await clr('teachers');await clr('tlog');await put('kv',d.cfg||{},'cfg');await bulk('students',d.st||[]);await bulk('payments',d.pay||[]);await bulk('teachers',d.tc||[]);await bulk('tlog',d.tl||[]);await load();go('home');toast('تمت الاستعادة')}catch{toast('ملف غير صالح')}e.target.value=''};
 /* --- الصفوف --- */
 function vGrades(){return `<h2>الصفوف وقيمة الرسوم</h2><div class="card"><div class="tw"><table><tr><th>الصف<th>القيمة (د.ل)<th>عدد الأقساط<th>تاريخ أول قسط<th>الطلاب</tr>${GR.map((g,i)=>{const c=S.cfg[g]||{};return `<tr><td><b>${g}</b><td><input type="number" min="0" data-g="${i}" data-k="fee" value="${c.fee||''}"><td><input type="number" min="1" data-g="${i}" data-k="n" value="${c.n||''}" placeholder="1"><td><input type="date" data-g="${i}" data-k="start" value="${c.start||''}"><td>${S.st.filter(s=>s.grade==g).length}</tr>`}).join('')}</table></div><div class="row"><button class="b" onclick="saveG()">💾 حفظ القيم</button></div></div>`}
 async function saveG(){const c={};document.querySelectorAll('[data-g]').forEach(i=>{const g=GR[i.dataset.g];(c[g]=c[g]||{})[i.dataset.k]=i.value});S.cfg=c;await put('kv',c,'cfg');toast('تم الحفظ');go('grades')}
@@ -155,6 +155,25 @@ RH=`<div class="sheet"><div class="rpt-h"><img src="logo.jpg"><div><h3>وزار�
 <div class="grid" style="margin-bottom:10px"><div class="st">الطلاب<b>${L.length}</b></div><div class="st">الإجمالي<b>${D(T)}</b></div><div class="st">المحصّل<b>${D(P)}</b></div><div class="st">المتبقي<b>${D(T-P)}</b></div></div>${by}
 <div class="tw"><table><tr><th>#<th>الاسم<th>الصف<th>الإجمالي<th>المدفوع<th>المتبقي<th>الحالة</tr>${L.map((s,i)=>`<tr><td>${i+1}<td>${esc(s.name)}<td>${s.grade}<td>${f(tot(s))}<td>${f(paid(s))}<td>${f(rem(s))}<td class="${rem(s)>0.5?'no':'ok'}">${rem(s)>0.5?'عليه متبقي':'مسدّد'}</tr>`).join('')}</table></div><p style="text-align:center;color:var(--mut)">منظومة الرسوم الدراسية - مراقبة التربية والتعليم بلدية سلوق</p></div>`;$('#rp').innerHTML=RH}
 function rx(){const ws=XLSX.utils.json_to_sheet(RR.map(s=>({'الاسم':s.name,'الصف':s.grade,'الإجمالي':tot(s),'المدفوع':paid(s),'المتبقي':rem(s)})));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'كشف');XLSX.writeFile(wb,`كشف_${today()}.xlsx`)}
+/* ===== المعلمون والإداريون ===== */
+let sv='l',ld=today(),pm=today().slice(0,7),PH='',PR=[];
+const TY={a:'إداري',t:'معلم جداول'};
+function vStaff(){return `<h2>المعلمون والإداريون</h2><div class="card"><div class="row">${[['l','👥 القائمة'],['d','📅 الحضور والحصص اليومية'],['p','🧾 كشف المرتبات']].map(x=>`<button class="b ${sv==x[0]?'go':''}" onclick="sv='${x[0]}';go('staff')">${x[1]}</button>`).join('')}</div></div><div id="sfx"></div>`}
+function sfr(){$('#sfx').innerHTML=({l:sL,d:sD,p:sP})[sv]()}
+function sL(){return `<div class="card"><h3>إضافة موظف / معلم</h3><div class="row"><input id="tn" placeholder="الاسم"><input id="tph" placeholder="الهاتف"><select id="tt" onchange="tp()"><option value="a">إداري (مرتب شهري)</option><option value="t">معلم جداول (بالحصة)</option></select></div><div class="row"><input id="tr" type="number" min="0" placeholder="المرتب الشهري (د.ل)"><input id="td" type="number" min="0" placeholder="خصم اليوم الغائب (اختياري = المرتب ÷ 30)"><button class="b go" onclick="addT()">إضافة</button></div></div>
+<div class="card"><div class="tw"><table><tr><th>الاسم<th>النوع<th>المرتب / سعر الحصة<th>خصم الغياب<th></tr>${S.tc.map(t=>`<tr><td>${esc(t.name)}<td>${TY[t.type]}<td>${f(t.rate)} ${t.type=='t'?'/ حصة':'/ شهر'}<td>${f(t.ded)} ${t.type=='t'?'/ حصة غائبة':'/ يوم'}<td style="white-space:nowrap"><button class="b sm" onclick="edT(${t.id})">تعديل</button> <button class="b sm rd" onclick="delT(${t.id})">حذف</button></tr>`).join('')||'<tr><td colspan="5">لا يوجد موظفون بعد</tr>'}</table></div></div>`}
+function tp(){const t=$('#tt').value=='t';$('#tr').placeholder=t?'سعر الحصة (د.ل)':'المرتب الشهري (د.ل)';$('#td').placeholder=t?'خصم إضافي لكل حصة غائبة (اختياري)':'خصم اليوم الغائب (اختياري = المرتب ÷ 30)'}
+async function addT(){const n=$('#tn').value.trim(),r=+$('#tr').value;if(!n||!(r>0))return toast('أدخل الاسم والقيمة');const ty=$('#tt').value,d=$('#td').value;const t={name:n,phone:$('#tph').value.trim(),type:ty,rate:r,ded:d!==''?+d:(ty=='a'?Math.round(r/30*100)/100:0)};t.id=await put('teachers',t);S.tc.push(t);toast('تمت الإضافة');sfr()}
+async function edT(id){const t=S.tc.find(x=>x.id==id);const r=prompt(t.type=='t'?'سعر الحصة:':'المرتب الشهري:',t.rate);if(r===null)return;const d=prompt('قيمة خصم الغياب:',t.ded);if(d===null)return;t.rate=+r||t.rate;t.ded=+d||0;await put('teachers',t);sfr()}
+async function delT(id){if(!confirm('حذف السجل وكل حضوره؟'))return;await del('teachers',id);for(const l of S.tl.filter(l=>l.tid==id))await del('tlog',l.id);S.tc=S.tc.filter(t=>t.id!=id);S.tl=S.tl.filter(l=>l.tid!=id);sfr()}
+const gl=(t,d)=>S.tl.find(x=>x.id==t+'_'+d)||{v:0,ab:0};
+async function lg(t,k,val){let r=S.tl.find(x=>x.id==t+'_'+ld);if(!r){r={id:t+'_'+ld,tid:t,date:ld,v:0,ab:0};S.tl.push(r)}r[k]=+val||0;await put('tlog',r);toast('تم الحفظ')}
+function sD(){return `<div class="card"><div class="row"><input type="date" value="${ld}" onchange="ld=this.value||today();sfr()"></div><div class="tw"><table><tr><th>الاسم<th>النوع<th>التسجيل</tr>${S.tc.map(t=>{const l=gl(t.id,ld);return `<tr><td>${esc(t.name)}<td>${TY[t.type]}<td>${t.type=='a'?`<select onchange="lg(${t.id},'ab',this.value)"><option value="0">✅ حاضر</option><option value="1" ${l.ab?'selected':''}>❌ غائب</option></select>`:`<div class="row"><label>حصص منفذة<input type="number" min="0" value="${l.v||''}" onchange="lg(${t.id},'v',this.value)"></label><label>حصص غائبة<input type="number" min="0" value="${l.ab||''}" onchange="lg(${t.id},'ab',this.value)"></label></div>`}</tr>`}).join('')||'<tr><td colspan="3">أضف موظفين أولاً</tr>'}</table></div><small>يُحفظ كل تغيير تلقائياً.</small></div>`}
+function sP(){PR=S.tc.map(t=>{const L=S.tl.filter(l=>l.tid==t.id&&l.date.startsWith(pm));const v=L.reduce((a,l)=>a+l.v,0),ab=L.reduce((a,l)=>a+l.ab,0),g=t.type=='a'?t.rate:v*t.rate,d=ab*t.ded;return{t,v,ab,g,d,n:g-d}});const T=k=>PR.reduce((a,r)=>a+r[k],0);
+PH=`<div class="sheet"><div class="rpt-h"><img src="logo.jpg"><div><h3>وزارة التربية والتعليم</h3><b>مراقبة التربية والتعليم - بلدية سلوق</b><br>كشف مرتبات الإداريين والمعلمين عن شهر ${pm}</div></div><div class="tw"><table><tr><th>#<th>الاسم<th>النوع<th>السعر<th>الحصص المنفذة<th>أيام/حصص الغياب<th>المستحق<th>الخصم<th>الصافي<th>التوقيع</tr>${PR.map((r,i)=>`<tr><td>${i+1}<td>${esc(r.t.name)}<td>${TY[r.t.type]}<td>${f(r.t.rate)}<td>${r.t.type=='t'?r.v:'-'}<td>${r.ab}<td>${f(r.g)}<td class="no">${f(r.d)}<td><b>${f(r.n)}</b><td style="min-width:90px"></tr>`).join('')}<tr><th colspan="6">الإجمالي<th>${f(T('g'))}<th>${f(T('d'))}<th>${f(T('n'))}<th></tr></table></div></div>`;
+return `<div class="card"><div class="row"><input type="month" value="${pm}" onchange="pm=this.value||today().slice(0,7);sfr()"><button class="b go" onclick="$('#pr').innerHTML=PH;print()">🖨 طباعة</button><button class="b" onclick="sx()">📗 تصدير Excel</button></div></div>${PH}`}
+function sx(){const ws=XLSX.utils.json_to_sheet(PR.map(r=>({'الاسم':r.t.name,'النوع':TY[r.t.type],'السعر':r.t.rate,'حصص منفذة':r.v,'غياب':r.ab,'المستحق':r.g,'الخصم':r.d,'الصافي':r.n})));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,pm);XLSX.writeFile(wb,`مرتبات_${pm}.xlsx`)}
+
 /* ===== تشغيل ===== */
 (async()=>{navigator.storage?.persist?.();await load();go('home');alertN();
 if('serviceWorker' in navigator)navigator.serviceWorker.register('sw.js');
