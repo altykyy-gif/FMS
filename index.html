@@ -70,7 +70,7 @@ td input{min-width:90px}
 <g fill="#c9a227" stroke="#8a6d10"><circle cx="90" cy="110" r="46"/><circle cx="170" cy="150" r="36"/><circle cx="700" cy="460" r="52"/><circle cx="620" cy="520" r="34"/><circle cx="330" cy="90" r="30"/></g>
 <g fill="#0b3d2e" stroke="none" font-size="22" font-family="Cairo,Tahoma" text-anchor="middle"><text x="90" y="118">د.ل</text><text x="170" y="158" font-size="17">د.ل</text><text x="700" y="468">د.ل</text><text x="620" y="526" font-size="16">د.ل</text><text x="330" y="97" font-size="14">%</text></g>
 <rect x="470" y="440" width="150" height="70" rx="8" fill="#e9dfb0" transform="rotate(-8 545 475)"/><rect x="40" y="250" width="130" height="60" rx="8" fill="#e9dfb0" transform="rotate(6 105 280)"/></g></svg></div>
-<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 7</small></div><button id="inst">تثبيت التطبيق</button></header>
+<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 8</small></div><button id="inst">تثبيت التطبيق</button></header>
 <nav id="nav"></nav>
 <main id="v"></main>
 <div id="toast"></div>
@@ -157,8 +157,8 @@ const by=g?'':`<h4 style="color:var(--g)">ملخص الصفوف</h4><table><tr><
 const hd=`<div class="rpt-h"><img src="logo.jpg"><div><h3>وزارة التربية والتعليم</h3><b>مراقبة التربية والتعليم - بلدية سلوق</b>${orgL()}<br>كشف الرسوم الدراسية: ${g||'المدرسة ككل'} &nbsp;|&nbsp; بتاريخ ${today()}</div></div><div class="grid" style="margin-bottom:10px"><div class="st">الطلاب<b>${L.length}</b></div><div class="st">الإجمالي<b>${D(T)}</b></div><div class="st">المحصّل<b>${D(P)}</b></div><div class="st">المتبقي<b>${D(T-P)}</b></div></div>${by}`;
 const th='<tr><th>#<th>الاسم<th>الصف<th>الإجمالي<th>المدفوع<th>المتبقي<th>الحالة</tr>';
 const row=(s,i)=>`<tr><td>${i+1}<td>${esc(s.name)}<td>${s.grade}<td>${f(tot(s))}<td>${f(paid(s))}<td>${f(rem(s))}<td class="${rem(s)>0.5?'no':'ok'}">${rem(s)>0.5?'عليه متبقي':'مسدّد'}</tr>`;
-const ch=[];for(let i=0;i<L.length;i+=10)ch.push(L.slice(i,i+10));if(!ch.length)ch.push([]);
-RH=ch.map((c,n)=>{const last=n==ch.length-1;return `<div class="sheet" style="${last?'':'break-after:page;page-break-after:always'}">${n==0?hd:`<div class="rpt-h"><img src="logo.jpg" style="width:50px;height:50px"><div><b>كشف الرسوم الدراسية - ${g||'المدرسة ككل'}</b> (تابع)${orgL()}</div></div>`}<div class="tw"><table>${th}${c.map((s,i)=>row(s,n*10+i)).join('')}</table></div>${last?sgn():''}<p style="text-align:center;color:var(--mut);font-size:.8rem">صفحة ${n+1} من ${ch.length}</p></div>`}).join('');$('#rp').innerHTML=RH}
+const F1=10,PP=15,ch=[L.slice(0,F1)];for(let i=F1;i<L.length;i+=PP)ch.push(L.slice(i,i+PP));
+RH=ch.map((c,n)=>{const last=n==ch.length-1;return `<div class="sheet" style="${last?'':'break-after:page;page-break-after:always'}">${n==0?hd:`<div class="rpt-h"><img src="logo.jpg" style="width:50px;height:50px"><div><b>كشف الرسوم الدراسية - ${g||'المدرسة ككل'}</b> (تابع)${orgL()}</div></div>`}<div class="tw"><table>${th}${c.map((s,i)=>row(s,(n?F1+(n-1)*PP:0)+i)).join('')}</table></div>${last?sgn():''}<p style="text-align:center;color:var(--mut);font-size:.8rem">صفحة ${n+1} من ${ch.length}</p></div>`}).join('');$('#rp').innerHTML=RH}
 function rx(){const ws=XLSX.utils.json_to_sheet(RR.map(s=>({'الاسم':s.name,'الصف':s.grade,'الإجمالي':tot(s),'المدفوع':paid(s),'المتبقي':rem(s)})));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'كشف');XLSX.writeFile(wb,`كشف_${today()}.xlsx`)}
 /* ===== المعلمون والإداريون ===== */
 let sv='l',ld=today(),pm=today().slice(0,7),PH='',PR=[];
