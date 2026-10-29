@@ -70,7 +70,7 @@ td input{min-width:90px}
 <g fill="#c9a227" stroke="#8a6d10"><circle cx="90" cy="110" r="46"/><circle cx="170" cy="150" r="36"/><circle cx="700" cy="460" r="52"/><circle cx="620" cy="520" r="34"/><circle cx="330" cy="90" r="30"/></g>
 <g fill="#0b3d2e" stroke="none" font-size="22" font-family="Cairo,Tahoma" text-anchor="middle"><text x="90" y="118">د.ل</text><text x="170" y="158" font-size="17">د.ل</text><text x="700" y="468">د.ل</text><text x="620" y="526" font-size="16">د.ل</text><text x="330" y="97" font-size="14">%</text></g>
 <rect x="470" y="440" width="150" height="70" rx="8" fill="#e9dfb0" transform="rotate(-8 545 475)"/><rect x="40" y="250" width="130" height="60" rx="8" fill="#e9dfb0" transform="rotate(6 105 280)"/></g></svg></div>
-<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 12</small></div><button id="inst">تثبيت التطبيق</button></header>
+<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 13</small></div><button id="inst">تثبيت التطبيق</button></header>
 <nav id="nav"></nav>
 <main id="v"></main>
 <div id="toast"></div>
@@ -163,8 +163,8 @@ RO={first:hd,cont,th,rows,end:sgn()};
 RH=`<div class="sheet">${hd}<div class="tw"><table>${th}${rows.join('')}</table></div>${sgn()}</div>`;$('#rp').innerHTML=RH}
 let RO;
 /* ترقيم تلقائي حسب الارتفاع الفعلي للصفحة */
-function pagesG(F,C,Pc,E){const LIM=1010,m=document.createElement('div');m.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:0;width:194mm;direction:rtl';document.body.appendChild(m);
-const rd=(pg,ps,last,n,N,brk)=>{let s='',op=-1;ps.forEach(q=>{if(q.h!=null){if(op>=0){s+='</table>';op=-1}s+=q.h}else{if(op!==q.tb){if(op>=0)s+='</table>';s+=(q.f?q.pre:'')+'<table>'+q.th;op=q.tb}s+=q.r}});if(op>=0)s+='</table>';return `<div class="sheet" style="${brk?'break-after:page;page-break-after:always':''}">${pg?C:F}${s}${last?E:''}<p style="text-align:center;color:var(--mut);font-size:.8rem;margin:4px">صفحة ${n} من ${N}</p></div>`};
+function pagesG(F,C,Pc,E){const LIM=1056,m=document.createElement('div');m.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:0;width:194mm;direction:rtl';document.body.appendChild(m);
+const rd=(pg,ps,last,n,N,brk)=>{let s='',op=-1;ps.forEach(q=>{if(q.h!=null){if(op>=0){s+='</table>';op=-1}s+=q.h}else{if(op!==q.tb){if(op>=0)s+='</table>';s+=(q.f?q.pre:'')+'<table>'+q.th;op=q.tb}s+=q.r}});if(op>=0)s+='</table>';return `<div class="sheet" style="border:0;padding:8px 16px;${brk?'break-after:page;page-break-after:always':''}">${pg?C:F}${s}${last?E:''}<p style="text-align:center;color:var(--mut);font-size:.8rem;margin:4px">صفحة ${n} من ${N}</p></div>`};
 const fits=(pg,ps,last)=>{m.innerHTML=rd(pg,ps,last,1,1,0);return m.firstChild.offsetHeight<=LIM};
 const P=[];let cur=[],pg=0;
 for(const q of Pc){cur.push(q);if(cur.length>1&&!fits(pg,cur,false)){cur.pop();P.push(cur);cur=[q];pg++}}
