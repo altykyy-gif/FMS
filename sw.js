@@ -1,4 +1,4 @@
-const V='fees-v8',F=['./','index.html','manifest.json','logo.jpg','xlsx.min.js','icon-192.png','icon-512.png','fonts/cairo-arabic-400-normal.woff2','fonts/cairo-arabic-700-normal.woff2','fonts/cairo-latin-400-normal.woff2','fonts/cairo-latin-700-normal.woff2'];
+const V='fees-v9',F=['./','index.html','manifest.json','logo.jpg','xlsx.min.js','icon-192.png','icon-512.png','fonts/cairo-arabic-400-normal.woff2','fonts/cairo-arabic-700-normal.woff2','fonts/cairo-latin-400-normal.woff2','fonts/cairo-latin-700-normal.woff2'];
 self.addEventListener('install',e=>{e.waitUntil(caches.open(V).then(c=>Promise.all(F.map(u=>fetch(new Request(u,{cache:'reload'})).then(r=>c.put(u,r))))));self.skipWaiting()});
 self.addEventListener('activate',e=>e.waitUntil(caches.keys().then(k=>Promise.all(k.filter(x=>x!=V).map(x=>caches.delete(x)))).then(()=>clients.claim())));
 self.addEventListener('fetch',e=>{if(e.request.method!='GET')return;e.respondWith(fetch(e.request,{cache:'no-cache'}).then(r=>{const c=r.clone();caches.open(V).then(x=>x.put(e.request,c));return r}).catch(()=>caches.match(e.request,{ignoreSearch:true}).then(r=>r||caches.match('index.html'))))});
