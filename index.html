@@ -23,7 +23,7 @@ header img{width:54px;height:54px;border-radius:50%;background:#fff;padding:2px}
 header h1{font-size:1.1rem;margin:0}header small{opacity:.85}
 #inst{margin-inline-start:auto;display:none;background:var(--gold);color:#222;border:0;border-radius:8px;padding:6px 10px;font:inherit;font-weight:700}
 nav{position:fixed;bottom:0;inset-inline:0;background:#fff;display:flex;box-shadow:0 -2px 12px #0003;z-index:5;padding-bottom:env(safe-area-inset-bottom)}
-nav a{flex:1;text-align:center;padding:8px 1px;font-size:.66rem;color:var(--mut);cursor:pointer;border-top:3px solid transparent}
+nav a{flex:1;text-align:center;padding:8px 1px;font-size:.6rem;color:var(--mut);cursor:pointer;border-top:3px solid transparent}
 nav a i{display:block;font-style:normal;font-size:1.3rem}
 nav a{position:relative}.bd{position:absolute;top:2px;left:50%;margin-left:6px;background:var(--red);color:#fff;border-radius:10px;font-size:.65rem;font-style:normal;padding:0 5px}
 nav a.on{color:var(--g);border-color:var(--gold);font-weight:700;background:#f7f3e0}
@@ -70,7 +70,7 @@ td input{min-width:90px}
 <g fill="#c9a227" stroke="#8a6d10"><circle cx="90" cy="110" r="46"/><circle cx="170" cy="150" r="36"/><circle cx="700" cy="460" r="52"/><circle cx="620" cy="520" r="34"/><circle cx="330" cy="90" r="30"/></g>
 <g fill="#0b3d2e" stroke="none" font-size="22" font-family="Cairo,Tahoma" text-anchor="middle"><text x="90" y="118">د.ل</text><text x="170" y="158" font-size="17">د.ل</text><text x="700" y="468">د.ل</text><text x="620" y="526" font-size="16">د.ل</text><text x="330" y="97" font-size="14">%</text></g>
 <rect x="470" y="440" width="150" height="70" rx="8" fill="#e9dfb0" transform="rotate(-8 545 475)"/><rect x="40" y="250" width="130" height="60" rx="8" fill="#e9dfb0" transform="rotate(6 105 280)"/></g></svg></div>
-<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 10</small></div><button id="inst">تثبيت التطبيق</button></header>
+<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 11</small></div><button id="inst">تثبيت التطبيق</button></header>
 <nav id="nav"></nav>
 <main id="v"></main>
 <div id="toast"></div>
@@ -104,9 +104,9 @@ function expected(s){const c=S.cfg[s.grade]||{};const n=+c.n||1;if(!c.start)retu
 const late=s=>Math.max(0,expected(s)-paid(s));
 /* ===== واجهة ===== */
 let view='home';
-const TABS=[['home','🏠','الرئيسية'],['grades','🏫','الصفوف'],['students','👨‍🎓','الطلاب'],['fees','💰','الرسوم'],['staff','👩‍🏫','المعلمون'],['fin','💼','المالية'],['reports','📊','التقارير']];
+const TABS=[['home','🏠','الرئيسية'],['grades','🏫','الصفوف'],['students','👨‍🎓','الطلاب'],['fees','💰','الرسوم'],['staff','👩‍🏫','المعلمون'],['fin','💼','المالية'],['tot','📒','الإجمالي'],['reports','📊','التقارير']];
 function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2600)}
-function go(v){view=v;applyOrg();$('#nav').innerHTML=TABS.map(t=>`<a class="${t[0]==v?'on':''}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}${t[0]=='home'&&S.st.some(s=>late(s)>0.5)?`<em class="bd">${S.st.filter(s=>late(s)>0.5).length}</em>`:''}</a>`).join('');$('#v').innerHTML=({home:vHome,grades:vGrades,students:vStudents,fees:vFees,staff:vStaff,fin:vFin,reports:vReports})[v]();if(v=='fees')fr();if(v=='students')sl();if(v=='reports')rp();if(v=='staff')sfr();if(v=='fin')fnr();scrollTo(0,0)}
+function go(v){view=v;applyOrg();$('#nav').innerHTML=TABS.map(t=>`<a class="${t[0]==v?'on':''}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}${t[0]=='home'&&S.st.some(s=>late(s)>0.5)?`<em class="bd">${S.st.filter(s=>late(s)>0.5).length}</em>`:''}</a>`).join('');$('#v').innerHTML=({home:vHome,grades:vGrades,students:vStudents,fees:vFees,staff:vStaff,fin:vFin,tot:vTotal,reports:vReports})[v]();if(v=='fees')fr();if(v=='students')sl();if(v=='reports')rp();if(v=='staff')sfr();if(v=='fin')fnr();if(v=='tot')tgr();scrollTo(0,0)}
 /* --- الرئيسية --- */
 function vHome(){const T=S.st.reduce((a,s)=>a+tot(s),0),P=S.st.reduce((a,s)=>a+paid(s),0),pc=T?Math.round(P/T*100):0;
 const L=S.st.map(s=>({s,l:late(s)})).filter(x=>x.l>0.5).sort((a,b)=>b.l-a.l);
@@ -242,6 +242,29 @@ const sgn=()=>S.org.mgr?`<div class="osg">${esc(S.org.title||'المسؤول')}<
 const sgM=()=>`<div>${S.org.mgr?esc(S.org.title||'المسؤول')+': '+esc(S.org.mgr):'توقيع المحاسب'}</div>`;
 function applyOrg(){const e=$('#hs');if(e)e.textContent='مراقبة التربية والتعليم - بلدية سلوق'+(S.org.name?' • '+S.org.name:'')}
 async function saveO(){S.org={name:$('#on').value.trim(),mgr:$('#om').value.trim(),title:$('#ot').value.trim()};await put('kv',S.org,'org');applyOrg();toast('تم حفظ بيانات المؤسسة')}
+/* ===== الإجمالي الكلي ===== */
+let gF='',gT='',gK='',gG='',TO2,TX=[];
+function ledger(){const E=[],cm=new Date().getFullYear()*12+new Date().getMonth();
+S.pay.forEach(p=>{const s=byId(p.sid);E.push({d:p.date,k:p.amt<0?'out':'in',g:p.amt<0?'ترجيع رسوم':'رسوم الطلاب',x:s?s.name+' - '+s.grade:'طالب محذوف',a:Math.abs(p.amt)})});
+S.tp.forEach(p=>{const t=S.tc.find(x=>x.id==p.tid);E.push({d:p.date,k:'out',g:'رواتب وأجور',x:(t?t.name:'محذوف')+' - مرتب '+p.month,a:p.amt})});
+S.fn.forEach(x=>{if(x.kind=='m'){const a=mi(x.from),b=x.to?Math.min(mi(x.to),cm):cm;for(let k=a;k<=b;k++)E.push({d:`${Math.floor(k/12)}-${String(k%12+1).padStart(2,'0')}-01`,k:'out',g:x.cat,x:(x.note||x.cat)+' (التزام شهري)',a:x.amt})}else E.push({d:x.date,k:'out',g:x.cat,x:x.note||x.cat,a:x.amt})});
+return E.sort((a,b)=>a.d<b.d?-1:a.d>b.d?1:0)}
+function vTotal(){const gs=[...new Set(ledger().map(e=>e.g))];return `<h2>الإجمالي الكلي</h2><div class="card"><div class="row"><label>من تاريخ<input type="date" value="${gF}" onchange="gF=this.value;tgr()"></label><label>إلى تاريخ<input type="date" value="${gT}" onchange="gT=this.value;tgr()"></label><label>النوع<select onchange="gK=this.value;tgr()"><option value="">وارد وصادر</option><option value="in" ${gK=='in'?'selected':''}>ما استلمناه فقط</option><option value="out" ${gK=='out'?'selected':''}>ما دفعناه فقط</option></select></label><label>البند<select onchange="gG=this.value;tgr()"><option value="">كل البنود</option>${gs.map(g=>`<option ${g==gG?'selected':''}>${esc(g)}</option>`).join('')}</select></label></div><div class="row"><button class="b go" onclick="ptot()">🖨 طباعة الكشف</button><button class="b" onclick="xtot()">📗 Excel</button></div></div><div id="gbox"></div>`}
+function tgr(){const E=ledger().filter(e=>(!gF||e.d>=gF)&&(!gT||e.d<=gT)&&(!gK||e.k==gK)&&(!gG||e.g==gG));TX=E;
+const I=E.filter(e=>e.k=='in').reduce((a,e)=>a+e.a,0),O=E.filter(e=>e.k=='out').reduce((a,e)=>a+e.a,0),B=I-O,due=S.st.reduce((a,s)=>a+Math.max(0,rem(s)),0),by={};
+E.forEach(e=>{const o=by[e.g]||(by[e.g]={i:0,o:0});o[e.k=='in'?'i':'o']+=e.a});let bal=0;
+const rows=E.map((e,i)=>{bal+=e.k=='in'?e.a:-e.a;return `<tr><td>${i+1}<td>${e.d}<td>${esc(e.g)}<td>${esc(e.x)}<td class="ok">${e.k=='in'?f(e.a):''}<td class="no">${e.k=='out'?f(e.a):''}<td><b>${f(bal)}</b></tr>`});
+const per=gF||gT?` | الفترة: ${gF||'البداية'} إلى ${gT||'اليوم'}`:' | كل الفترات';
+const hd=`<div class="rpt-h"><img src="logo.jpg"><div><h3>وزارة التربية والتعليم</h3><b>مراقبة التربية والتعليم - بلدية سلوق</b>${orgL()}<br>الإجمالي الكلي - كشف الوارد والصادر${per} | بتاريخ ${today()}</div></div>
+<div class="grid" style="margin-bottom:10px"><div class="st">إجمالي ما استلمناه<b>${D(I)}</b></div><div class="st">إجمالي ما دفعناه<b>${D(O)}</b></div><div class="st" style="${B<0?'background:var(--red)':''}">${B<0?'العجز':'الرصيد الصافي'}<b>${D(Math.abs(B))}</b></div><div class="st">رسوم متبقية على الطلاب<b>${D(due)}</b></div></div>
+<h4 style="color:var(--g)">الملخص حسب البند</h4><table><tr><th>البند<th>وارد (استلام)<th>صادر (دفع)</tr>${Object.entries(by).map(([k,v])=>`<tr><td>${esc(k)}<td class="ok">${v.i?f(v.i):''}<td class="no">${v.o?f(v.o):''}</tr>`).join('')||'<tr><td colspan="3">لا توجد حركات</tr>'}</table><h4 style="color:var(--g)">كشف الحركات</h4>`;
+const th='<tr><th>#<th>التاريخ<th>البند<th>التفاصيل<th>وارد<th>صادر<th>الرصيد</tr>';
+const end=`<table><tr><th>الإجمالي<th>وارد: ${f(I)}<th>صادر: ${f(O)}<th>الصافي: ${f(B)}</tr></table>${sgn()}`;
+TO2={first:hd,cont:`<div class="rpt-h"><img src="logo.jpg" style="width:50px;height:50px"><div><b>الإجمالي الكلي - كشف الحركات</b> (تابع)${orgL()}</div></div>`,th,rows,end};
+$('#gbox').innerHTML=`<div class="sheet">${hd}<div class="tw"><table>${th}${rows.join('')}</table></div>${end}</div>`}
+async function ptot(){await document.fonts.ready;$('#pr').innerHTML=pages(TO2);setTimeout(()=>print(),150)}
+function xtot(){let b=0;const ws=XLSX.utils.json_to_sheet(TX.map(e=>{b+=e.k=='in'?e.a:-e.a;return{'التاريخ':e.d,'البند':e.g,'التفاصيل':e.x,'وارد':e.k=='in'?e.a:'','صادر':e.k=='out'?e.a:'','الرصيد':b}}));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'الإجمالي');XLSX.writeFile(wb,`الإجمالي_الكلي_${today()}.xlsx`)}
+
 /* ===== تشغيل ===== */
 (async()=>{navigator.storage?.persist?.();await load();go('home');alertN();document.addEventListener('visibilitychange',()=>{if(!document.hidden)alertN()});
 if('serviceWorker' in navigator){const had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update());navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)location.reload()})}
