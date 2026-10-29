@@ -70,7 +70,7 @@ td input{min-width:90px}
 <g fill="#c9a227" stroke="#8a6d10"><circle cx="90" cy="110" r="46"/><circle cx="170" cy="150" r="36"/><circle cx="700" cy="460" r="52"/><circle cx="620" cy="520" r="34"/><circle cx="330" cy="90" r="30"/></g>
 <g fill="#0b3d2e" stroke="none" font-size="22" font-family="Cairo,Tahoma" text-anchor="middle"><text x="90" y="118">د.ل</text><text x="170" y="158" font-size="17">د.ل</text><text x="700" y="468">د.ل</text><text x="620" y="526" font-size="16">د.ل</text><text x="330" y="97" font-size="14">%</text></g>
 <rect x="470" y="440" width="150" height="70" rx="8" fill="#e9dfb0" transform="rotate(-8 545 475)"/><rect x="40" y="250" width="130" height="60" rx="8" fill="#e9dfb0" transform="rotate(6 105 280)"/></g></svg></div>
-<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 9</small></div><button id="inst">تثبيت التطبيق</button></header>
+<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 10</small></div><button id="inst">تثبيت التطبيق</button></header>
 <nav id="nav"></nav>
 <main id="v"></main>
 <div id="toast"></div>
@@ -150,15 +150,28 @@ const rc=(p,s,lab)=>`<div class="rc"><div class="rh"><img src="logo.jpg"><div><b
 <div class="sig"><div>توقيع ولي الأمر</div>${sgM()}<div>الختم</div></div><span class="lab">${lab}</span></div>`;
 function prt(id){const p=S.pay.find(x=>x.id==id),s=byId(p.sid);$('#pr').innerHTML=rc(p,s,'نسخة ولي الأمر')+'<div class="cut">✂ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ ـ</div>'+rc(p,s,'نسخة المدرسة');setTimeout(()=>print(),150)}
 /* --- التقارير --- */
-function vReports(){return `<h2>التقارير</h2><div class="card"><div class="row"><select id="rg" onchange="rp()">${gOpts(1)}</select><select id="rs" onchange="rp()"><option value="">كل الطلاب</option><option value="d">عليهم متبقي</option><option value="c">مسدّدون بالكامل</option></select><button class="b go" onclick="$('#pr').innerHTML=RH;print()">🖨 طباعة</button><button class="b" onclick="rx()">📗 تصدير Excel</button></div></div><div id="rp"></div>`}
+function vReports(){return `<h2>التقارير</h2><div class="card"><div class="row"><select id="rg" onchange="rp()">${gOpts(1)}</select><select id="rs" onchange="rp()"><option value="">كل الطلاب</option><option value="d">عليهم متبقي</option><option value="c">مسدّدون بالكامل</option></select><button class="b go" onclick="prR()">🖨 طباعة</button><button class="b" onclick="rx()">📗 تصدير Excel</button></div></div><div id="rp"></div>`}
 let RH='',RR=[];
 function rp(){const g=$('#rg').value,m=$('#rs').value;const L=S.st.filter(s=>(!g||s.grade==g)&&(m!='d'||rem(s)>0.5)&&(m!='c'||rem(s)<=0.5));RR=L;const T=L.reduce((a,s)=>a+tot(s),0),P=L.reduce((a,s)=>a+paid(s),0);
 const by=g?'':`<h4 style="color:var(--g)">ملخص الصفوف</h4><table><tr><th>الصف<th>الطلاب<th>الإجمالي<th>المحصّل<th>المتبقي</tr>${GR.map(x=>{const q=L.filter(s=>s.grade==x);if(!q.length)return'';const a=q.reduce((c,s)=>c+tot(s),0),b=q.reduce((c,s)=>c+paid(s),0);return `<tr><td>${x}<td>${q.length}<td>${f(a)}<td>${f(b)}<td>${f(a-b)}</tr>`}).join('')}</table><br>`;
 const hd=`<div class="rpt-h"><img src="logo.jpg"><div><h3>وزارة التربية والتعليم</h3><b>مراقبة التربية والتعليم - بلدية سلوق</b>${orgL()}<br>كشف الرسوم الدراسية: ${g||'المدرسة ككل'} &nbsp;|&nbsp; بتاريخ ${today()}</div></div><div class="grid" style="margin-bottom:10px"><div class="st">الطلاب<b>${L.length}</b></div><div class="st">الإجمالي<b>${D(T)}</b></div><div class="st">المحصّل<b>${D(P)}</b></div><div class="st">المتبقي<b>${D(T-P)}</b></div></div>${by}`;
 const th='<tr><th>#<th>الاسم<th>الصف<th>الإجمالي<th>المدفوع<th>المتبقي<th>الحالة</tr>';
 const row=(s,i)=>`<tr><td>${i+1}<td>${esc(s.name)}<td>${s.grade}<td>${f(tot(s))}<td>${f(paid(s))}<td>${f(rem(s))}<td class="${rem(s)>0.5?'no':'ok'}">${rem(s)>0.5?'عليه متبقي':'مسدّد'}</tr>`;
-const F1=12,PP=18,ch=[L.slice(0,F1)];for(let i=F1;i<L.length;i+=PP)ch.push(L.slice(i,i+PP));
-RH=ch.map((c,n)=>{const last=n==ch.length-1;return `<div class="sheet" style="${last?'':'break-after:page;page-break-after:always'}">${n==0?hd:`<div class="rpt-h"><img src="logo.jpg" style="width:50px;height:50px"><div><b>كشف الرسوم الدراسية - ${g||'المدرسة ككل'}</b> (تابع)${orgL()}</div></div>`}<div class="tw"><table>${th}${c.map((s,i)=>row(s,(n?F1+(n-1)*PP:0)+i)).join('')}</table></div>${last?sgn():''}<p style="text-align:center;color:var(--mut);font-size:.8rem">صفحة ${n+1} من ${ch.length}</p></div>`}).join('');$('#rp').innerHTML=RH}
+const rows=L.map((s,i)=>row(s,i));
+const cont=`<div class="rpt-h"><img src="logo.jpg" style="width:50px;height:50px"><div><b>كشف الرسوم الدراسية - ${g||'المدرسة ككل'}</b> (تابع)${orgL()}</div></div>`;
+RO={first:hd,cont,th,rows,end:sgn()};
+RH=`<div class="sheet">${hd}<div class="tw"><table>${th}${rows.join('')}</table></div>${sgn()}</div>`;$('#rp').innerHTML=RH}
+let RO;
+/* ترقيم تلقائي حسب الارتفاع الفعلي للصفحة */
+function pages(o){const LIM=1010,m=document.createElement('div');m.style.cssText='position:absolute;visibility:hidden;left:-9999px;top:0;width:194mm;direction:rtl';document.body.appendChild(m);
+const bd=(pg,rs,last,n,N,brk)=>`<div class="sheet" style="${brk?'break-after:page;page-break-after:always':''}">${pg?o.cont:o.first}<table>${o.th}${rs.join('')}</table>${last?o.end:''}<p style="text-align:center;color:var(--mut);font-size:.8rem;margin:4px">صفحة ${n} من ${N}</p></div>`;
+const fits=(pg,rs,last)=>{m.innerHTML=bd(pg,rs,last,1,1,0);return m.firstChild.offsetHeight<=LIM};
+const P=[];let cur=[],pg=0;
+for(const r of o.rows){cur.push(r);if(cur.length>1&&!fits(pg,cur,false)){cur.pop();P.push(cur);cur=[r];pg++}}
+const carry=[];while(cur.length>1&&!fits(pg,cur,true))carry.unshift(cur.pop());
+P.push(cur);if(carry.length)P.push(carry);
+m.remove();return P.map((rs,i)=>bd(i,rs,i==P.length-1,i+1,P.length,i<P.length-1)).join('')}
+async function prR(){await document.fonts.ready;$('#pr').innerHTML=pages(RO);setTimeout(()=>print(),150)}
 function rx(){const ws=XLSX.utils.json_to_sheet(RR.map(s=>({'الاسم':s.name,'الصف':s.grade,'الإجمالي':tot(s),'المدفوع':paid(s),'المتبقي':rem(s)})));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'كشف');XLSX.writeFile(wb,`كشف_${today()}.xlsx`)}
 /* ===== المعلمون والإداريون ===== */
 let sv='l',ld=today(),pm=today().slice(0,7),PH='',PR=[];
