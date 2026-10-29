@@ -25,6 +25,7 @@ header h1{font-size:1.1rem;margin:0}header small{opacity:.85}
 nav{position:fixed;bottom:0;inset-inline:0;background:#fff;display:flex;box-shadow:0 -2px 12px #0003;z-index:5;padding-bottom:env(safe-area-inset-bottom)}
 nav a{flex:1;text-align:center;padding:8px 1px;font-size:.66rem;color:var(--mut);cursor:pointer;border-top:3px solid transparent}
 nav a i{display:block;font-style:normal;font-size:1.3rem}
+nav a{position:relative}.bd{position:absolute;top:2px;left:50%;margin-left:6px;background:var(--red);color:#fff;border-radius:10px;font-size:.65rem;font-style:normal;padding:0 5px}
 nav a.on{color:var(--g);border-color:var(--gold);font-weight:700;background:#f7f3e0}
 main{max-width:1050px;margin:auto;padding:14px}
 h2{color:var(--g);margin:6px 0 12px}
@@ -69,7 +70,7 @@ td input{min-width:90px}
 <g fill="#c9a227" stroke="#8a6d10"><circle cx="90" cy="110" r="46"/><circle cx="170" cy="150" r="36"/><circle cx="700" cy="460" r="52"/><circle cx="620" cy="520" r="34"/><circle cx="330" cy="90" r="30"/></g>
 <g fill="#0b3d2e" stroke="none" font-size="22" font-family="Cairo,Tahoma" text-anchor="middle"><text x="90" y="118">د.ل</text><text x="170" y="158" font-size="17">د.ل</text><text x="700" y="468">د.ل</text><text x="620" y="526" font-size="16">د.ل</text><text x="330" y="97" font-size="14">%</text></g>
 <rect x="470" y="440" width="150" height="70" rx="8" fill="#e9dfb0" transform="rotate(-8 545 475)"/><rect x="40" y="250" width="130" height="60" rx="8" fill="#e9dfb0" transform="rotate(6 105 280)"/></g></svg></div>
-<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 6</small></div><button id="inst">تثبيت التطبيق</button></header>
+<header><img src="logo.jpg" alt="الشعار"><div><h1>منظومة الرسوم الدراسية</h1><small id="hs">مراقبة التربية والتعليم - بلدية سلوق</small> <small style="opacity:.6">• إصدار 7</small></div><button id="inst">تثبيت التطبيق</button></header>
 <nav id="nav"></nav>
 <main id="v"></main>
 <div id="toast"></div>
@@ -99,19 +100,19 @@ const byId=id=>S.st.find(s=>s.id==id);
 const tot=s=>s.fee!=null&&s.fee!==''?+s.fee:+(S.cfg[s.grade]?.fee||0);
 const paid=s=>S.pay.filter(p=>p.sid==s.id).reduce((a,p)=>a+p.amt,0);
 const rem=s=>tot(s)-paid(s);
-function expected(s){const c=S.cfg[s.grade]||{};const n=+c.n||0;if(!n||!c.start)return 0;const a=new Date(c.start),b=new Date();let m=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth();if(b.getDate()<a.getDate())m--;const k=Math.max(0,Math.min(n,m+1));return tot(s)*k/n}
+function expected(s){const c=S.cfg[s.grade]||{};const n=+c.n||1;if(!c.start)return 0;const a=new Date(c.start),b=new Date();let m=(b.getFullYear()-a.getFullYear())*12+b.getMonth()-a.getMonth();if(b.getDate()<a.getDate())m--;const k=Math.max(0,Math.min(n,m+1));return tot(s)*k/n}
 const late=s=>Math.max(0,expected(s)-paid(s));
 /* ===== واجهة ===== */
 let view='home';
 const TABS=[['home','🏠','الرئيسية'],['grades','🏫','الصفوف'],['students','👨‍🎓','الطلاب'],['fees','💰','الرسوم'],['staff','👩‍🏫','المعلمون'],['fin','💼','المالية'],['reports','📊','التقارير']];
 function toast(t){const e=$('#toast');e.textContent=t;e.style.display='block';clearTimeout(e._t);e._t=setTimeout(()=>e.style.display='none',2600)}
-function go(v){view=v;applyOrg();$('#nav').innerHTML=TABS.map(t=>`<a class="${t[0]==v?'on':''}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}</a>`).join('');$('#v').innerHTML=({home:vHome,grades:vGrades,students:vStudents,fees:vFees,staff:vStaff,fin:vFin,reports:vReports})[v]();if(v=='fees')fr();if(v=='students')sl();if(v=='reports')rp();if(v=='staff')sfr();if(v=='fin')fnr();scrollTo(0,0)}
+function go(v){view=v;applyOrg();$('#nav').innerHTML=TABS.map(t=>`<a class="${t[0]==v?'on':''}" onclick="go('${t[0]}')"><i>${t[1]}</i>${t[2]}${t[0]=='home'&&S.st.some(s=>late(s)>0.5)?`<em class="bd">${S.st.filter(s=>late(s)>0.5).length}</em>`:''}</a>`).join('');$('#v').innerHTML=({home:vHome,grades:vGrades,students:vStudents,fees:vFees,staff:vStaff,fin:vFin,reports:vReports})[v]();if(v=='fees')fr();if(v=='students')sl();if(v=='reports')rp();if(v=='staff')sfr();if(v=='fin')fnr();scrollTo(0,0)}
 /* --- الرئيسية --- */
 function vHome(){const T=S.st.reduce((a,s)=>a+tot(s),0),P=S.st.reduce((a,s)=>a+paid(s),0),pc=T?Math.round(P/T*100):0;
 const L=S.st.map(s=>({s,l:late(s)})).filter(x=>x.l>0.5).sort((a,b)=>b.l-a.l);
 return `<h2>لوحة المتابعة</h2><div class="grid"><div class="st">عدد الطلاب<b>${f(S.st.length)}</b></div><div class="st">إجمالي الرسوم<b>${D(T)}</b></div><div class="st">المحصّل<b>${D(P)}</b></div><div class="st">المتبقي<b>${D(T-P)}</b></div></div>
 <div class="card" style="margin-top:14px">نسبة التحصيل ${pc}%<div class="bar"><i style="width:${pc}%"></i></div></div>
-<div class="card"><h3>تنبيهات الأقساط المتأخرة (${L.length})</h3>${L.slice(0,15).map(x=>`<div class="al"><span><b>${esc(x.s.name)}</b> - ${x.s.grade}</span><span>متأخر: <b class="no">${D(x.l)}</b> ${x.s.phone?`<a href="tel:${esc(x.s.phone)}">📞</a>`:''} <button class="b sm" onclick="sel=${x.s.id};go('fees')">سداد</button></span></div>`).join('')||'<p class="ok">لا توجد أقساط متأخرة. حدّد عدد الأقساط وتاريخ أول قسط في تبويب الصفوف لتفعيل التنبيهات.</p>'}</div>
+<div class="card"><h3>تنبيهات الأقساط المتأخرة (${L.length})</h3>${(g=>g.length?`<p class="no">⚠ لم يُحدَّد تاريخ أول قسط للصفوف: ${g.join('، ')} (من تبويب الصفوف)</p>`:'')(GR.filter(g=>S.cfg[g]?.fee&&!S.cfg[g]?.start&&S.st.some(s=>s.grade==g)))}${L.slice(0,15).map(x=>`<div class="al"><span><b>${esc(x.s.name)}</b> - ${x.s.grade}</span><span>متأخر: <b class="no">${D(x.l)}</b> ${x.s.phone?`<a href="tel:${esc(x.s.phone)}">📞</a>`:''} <button class="b sm" onclick="sel=${x.s.id};go('fees')">سداد</button></span></div>`).join('')||'<p class="ok">لا توجد أقساط متأخرة. حدّد عدد الأقساط وتاريخ أول قسط في تبويب الصفوف لتفعيل التنبيهات.</p>'}</div>
 <div class="card"><h3>بيانات المؤسسة</h3><div class="row"><input id="on" placeholder="اسم المؤسسة / المدرسة" value="${esc(S.org.name)}"><input id="om" placeholder="اسم المسؤول" value="${esc(S.org.mgr)}"><input id="ot" list="otl" placeholder="صفته (مثال: مدير المدرسة)" value="${esc(S.org.title)}"><datalist id="otl"><option>مدير المدرسة<option>مراقب التربية والتعليم<option>رئيس اللجنة<option>المدير المالي</datalist><button class="b go" onclick="saveO()">حفظ</button></div><small>تظهر هذه البيانات في ترويسة وتوقيع كل التقارير والإيصالات.</small></div><div class="card"><h3>الأدوات</h3><div class="row"><button class="b go" onclick="notif()">🔔 تفعيل إشعارات الجهاز</button><button class="b" onclick="bk()">⬇ نسخة احتياطية</button><button class="b" onclick="$('#fb').click()">⬆ استعادة نسخة</button></div><small>البيانات محفوظة في ذاكرة المتصفح (IndexedDB) على هذا الجهاز. خذ نسخة احتياطية دورياً.</small></div>`}
 async function notif(){if(!('Notification' in window))return toast('الجهاز لا يدعم الإشعارات');const r=await Notification.requestPermission();if(r=='granted'){toast('تم تفعيل الإشعارات');alertN()}}
 async function alertN(){if(!('Notification' in window)||Notification.permission!='granted')return;const n=S.st.filter(s=>late(s)>0.5).length;if(!n)return;const r=await navigator.serviceWorker?.getRegistration();r?.showNotification('تنبيه أقساط',{body:`يوجد ${n} طالب متأخر عن سداد القسط`,icon:'icon-192.png',dir:'rtl',lang:'ar'})}
@@ -153,9 +154,11 @@ function vReports(){return `<h2>التقارير</h2><div class="card"><div clas
 let RH='',RR=[];
 function rp(){const g=$('#rg').value,m=$('#rs').value;const L=S.st.filter(s=>(!g||s.grade==g)&&(m!='d'||rem(s)>0.5)&&(m!='c'||rem(s)<=0.5));RR=L;const T=L.reduce((a,s)=>a+tot(s),0),P=L.reduce((a,s)=>a+paid(s),0);
 const by=g?'':`<h4 style="color:var(--g)">ملخص الصفوف</h4><table><tr><th>الصف<th>الطلاب<th>الإجمالي<th>المحصّل<th>المتبقي</tr>${GR.map(x=>{const q=L.filter(s=>s.grade==x);if(!q.length)return'';const a=q.reduce((c,s)=>c+tot(s),0),b=q.reduce((c,s)=>c+paid(s),0);return `<tr><td>${x}<td>${q.length}<td>${f(a)}<td>${f(b)}<td>${f(a-b)}</tr>`}).join('')}</table><br>`;
-RH=`<div class="sheet"><div class="rpt-h"><img src="logo.jpg"><div><h3>وزارة التربية والتعليم</h3><b>مراقبة التربية والتعليم - بلدية سلوق</b>${orgL()}<br>كشف الرسوم الدراسية: ${g||'المدرسة ككل'} &nbsp;|&nbsp; بتاريخ ${today()}</div></div>
-<div class="grid" style="margin-bottom:10px"><div class="st">الطلاب<b>${L.length}</b></div><div class="st">الإجمالي<b>${D(T)}</b></div><div class="st">المحصّل<b>${D(P)}</b></div><div class="st">المتبقي<b>${D(T-P)}</b></div></div>${by}
-<div class="tw"><table><tr><th>#<th>الاسم<th>الصف<th>الإجمالي<th>المدفوع<th>المتبقي<th>الحالة</tr>${L.map((s,i)=>`<tr><td>${i+1}<td>${esc(s.name)}<td>${s.grade}<td>${f(tot(s))}<td>${f(paid(s))}<td>${f(rem(s))}<td class="${rem(s)>0.5?'no':'ok'}">${rem(s)>0.5?'عليه متبقي':'مسدّد'}</tr>`).join('')}</table></div><p style="text-align:center;color:var(--mut)">منظومة الرسوم الدراسية - مراقبة التربية والتعليم بلدية سلوق</p>${sgn()}</div>`;$('#rp').innerHTML=RH}
+const hd=`<div class="rpt-h"><img src="logo.jpg"><div><h3>وزارة التربية والتعليم</h3><b>مراقبة التربية والتعليم - بلدية سلوق</b>${orgL()}<br>كشف الرسوم الدراسية: ${g||'المدرسة ككل'} &nbsp;|&nbsp; بتاريخ ${today()}</div></div><div class="grid" style="margin-bottom:10px"><div class="st">الطلاب<b>${L.length}</b></div><div class="st">الإجمالي<b>${D(T)}</b></div><div class="st">المحصّل<b>${D(P)}</b></div><div class="st">المتبقي<b>${D(T-P)}</b></div></div>${by}`;
+const th='<tr><th>#<th>الاسم<th>الصف<th>الإجمالي<th>المدفوع<th>المتبقي<th>الحالة</tr>';
+const row=(s,i)=>`<tr><td>${i+1}<td>${esc(s.name)}<td>${s.grade}<td>${f(tot(s))}<td>${f(paid(s))}<td>${f(rem(s))}<td class="${rem(s)>0.5?'no':'ok'}">${rem(s)>0.5?'عليه متبقي':'مسدّد'}</tr>`;
+const ch=[];for(let i=0;i<L.length;i+=10)ch.push(L.slice(i,i+10));if(!ch.length)ch.push([]);
+RH=ch.map((c,n)=>{const last=n==ch.length-1;return `<div class="sheet" style="${last?'':'break-after:page;page-break-after:always'}">${n==0?hd:`<div class="rpt-h"><img src="logo.jpg" style="width:50px;height:50px"><div><b>كشف الرسوم الدراسية - ${g||'المدرسة ككل'}</b> (تابع)${orgL()}</div></div>`}<div class="tw"><table>${th}${c.map((s,i)=>row(s,n*10+i)).join('')}</table></div>${last?sgn():''}<p style="text-align:center;color:var(--mut);font-size:.8rem">صفحة ${n+1} من ${ch.length}</p></div>`}).join('');$('#rp').innerHTML=RH}
 function rx(){const ws=XLSX.utils.json_to_sheet(RR.map(s=>({'الاسم':s.name,'الصف':s.grade,'الإجمالي':tot(s),'المدفوع':paid(s),'المتبقي':rem(s)})));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'كشف');XLSX.writeFile(wb,`كشف_${today()}.xlsx`)}
 /* ===== المعلمون والإداريون ===== */
 let sv='l',ld=today(),pm=today().slice(0,7),PH='',PR=[];
@@ -222,12 +225,12 @@ function fA(){const L=years().map(yr);const T=k=>L.reduce((a,d)=>a+d[k],0);retur
 function ax(){const ws=XLSX.utils.json_to_sheet(years().map(yr).map(d=>({'السنة':d.y,'الإيرادات':d.R,'المصروفات':d.E,'الصافي':d.N})));const wb=XLSX.utils.book_new();wb.Workbook={Views:[{RTL:true}]};XLSX.utils.book_append_sheet(wb,ws,'الأرشيف');XLSX.writeFile(wb,'أرشيف_السنوات.xlsx')}
 
 const orgL=()=>S.org.name?`<br><b>${esc(S.org.name)}</b>`:'';
-const sgn=()=>S.org.mgr?`<div class="osg">${esc(S.org.title||'المسؤول')}<br><b>${esc(S.org.mgr)}</b><br><small>التوقيع والختم</small></div>`:'';
+const sgn=()=>S.org.mgr?`<div class="osg">${esc(S.org.title||'المسؤول')}<br><b>${esc(S.org.mgr)}</b></div>`:'';
 const sgM=()=>`<div>${S.org.mgr?esc(S.org.title||'المسؤول')+': '+esc(S.org.mgr):'توقيع المحاسب'}</div>`;
 function applyOrg(){const e=$('#hs');if(e)e.textContent='مراقبة التربية والتعليم - بلدية سلوق'+(S.org.name?' • '+S.org.name:'')}
 async function saveO(){S.org={name:$('#on').value.trim(),mgr:$('#om').value.trim(),title:$('#ot').value.trim()};await put('kv',S.org,'org');applyOrg();toast('تم حفظ بيانات المؤسسة')}
 /* ===== تشغيل ===== */
-(async()=>{navigator.storage?.persist?.();await load();go('home');alertN();
+(async()=>{navigator.storage?.persist?.();await load();go('home');alertN();document.addEventListener('visibilitychange',()=>{if(!document.hidden)alertN()});
 if('serviceWorker' in navigator){const had=!!navigator.serviceWorker.controller;navigator.serviceWorker.register('sw.js',{updateViaCache:'none'}).then(r=>r.update());navigator.serviceWorker.addEventListener('controllerchange',()=>{if(had)location.reload()})}
 let dp;addEventListener('beforeinstallprompt',e=>{e.preventDefault();dp=e;$('#inst').style.display='block'});$('#inst').onclick=()=>dp?.prompt()})();
 </script>
